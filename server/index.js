@@ -1,21 +1,29 @@
 const express = require('express');
-const bodyPaser = require('body-parser');
-const session = require('express-session');
 const massive = require('massive');
 const axios = require('axios');
-const PORT = 3500;
+const session = require('express-session');
 require('dotenv').config();
-const app = express()
+const bodyParser = require('body-parser');
+const PORT = 3500;
+const authController = require('./controllers/authController');
 
-app.use(bodyPaser.json())
+const app = express();
+app.use(bodyParser.json());
 app.use(session({
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 100 * 60 * 60 * 24 * 14
-    },
-    secret: process.env.SESSION_SECRET
-}))
-massive(process.env.CONNECTION_STRING).then(db => app.set('db', db));
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 14,
+  },
+  secret: process.env.SESSION_SECRET,
+}));
 
-app.listen(PORT, () => console.log(`${PORT} people dancing in the moonlight`))
+massive(process.env.CONNECTION_STRING).then(db => {
+  app.set('db', db);
+});
+//Auth0 
+app.get('/callback', authController.login);
+app.get('/api/user', authController.getUser);
+app.post('/api/logout', authController.logout);
+app.put('/api/user', authController.editProfile)
+app.listen( PORT, () => console.log( `${PORT} people dancing in the moonlight` ))

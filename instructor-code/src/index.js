@@ -13,4 +13,3 @@ ReactDOM.render(<Provider store={store}>
   </HashRouter>
 </Provider>, document.getElementById('root'));
 registerServiceWorker();
-
